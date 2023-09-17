@@ -3,9 +3,13 @@ import RatesPage from 'Pages/RatesPage';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Header from './Header/Header';
 import { useEffect } from 'react';
-import { getUserInfo } from 'service/opencagedataApi';
+
+import { useDispatch } from 'react-redux';
+import { fetchBaseCurrency } from 'redux/operations';
+import { setBaseCurrency } from 'redux/currencySlice';
 
 export const App = () => {
+  const dispatch = useDispatch();
   useEffect(() => {
     const options = {
       enableHighAccuracy: true,
@@ -14,20 +18,15 @@ export const App = () => {
     };
 
     function success(pos) {
-      const crd = pos.coords;
-      getUserInfo(crd);
-      console.log('Your current position is:');
-      console.log(`Latitude : ${crd.latitude}`);
-      console.log(`Longitude: ${crd.longitude}`);
-      console.log(`More or less ${crd.accuracy} meters.`);
+      dispatch(fetchBaseCurrency(pos.coords));
     }
 
     function error(err) {
-      console.warn(`ERROR(${err.code}): ${err.message}`);
+      dispatch(setBaseCurrency('USD'));
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
-  });
+  }, [dispatch]);
 
   return (
     <div>
